@@ -4,6 +4,8 @@ import static com.fin.advisor.constant.ApplicationConstant.BLANK_SPACE;
 import static com.fin.advisor.constant.ApplicationConstant.CURRENCY_FORMATTER;
 import static com.fin.advisor.constant.ApplicationConstant.NULL_STRING;
 
+import java.util.Arrays;
+
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,12 +17,10 @@ public class CommonUtil {
 
 
 	public double findMin(double... vals) {
-		double min = 0;
-		for (double d : vals) {
-			if (d < min)
-				min = d;
-		}
-		return min;
+	
+		return Arrays.stream(vals)
+	      .min()
+	      .getAsDouble();
 	}
 
 	public String getCurrencyValueOf(Object currencyObject) {

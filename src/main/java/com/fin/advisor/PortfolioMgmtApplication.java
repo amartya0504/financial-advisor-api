@@ -26,8 +26,8 @@ public class PortfolioMgmtApplication extends SpringBootServletInitializer {
 	}
 	
 	public static void main(String[] args) {
-		logger.info("main() <<");
+		logger.info("main() starting <<");
 		SpringApplication.run(PortfolioMgmtApplication.class, args);
-		logger.info("main() >>");
+		logger.info("main() started >>");
 	}
 }

@@ -100,96 +100,109 @@ public class PortfolioServiceImpl implements PortfolioService {
 		return customPortfolioDTO;
 	}
 
-
+	private Map<String, double[]> getMinValueMap(Map<String, Double> differenceMap) {
+		
+		Map<String, double[]> minValueMap = new HashMap<String, double[]>();
+		
+		minValueMap.put(BONDS_STRING, new double[] {differenceMap.get(LARGE_CAP_STRING), differenceMap.get(MID_CAP_STRING),
+				differenceMap.get(FOREIGN_STRING), differenceMap.get(SMALL_CAP_STRING)});
+		
+		minValueMap.put(LARGE_CAP_STRING, new double[] {differenceMap.get(MID_CAP_STRING), differenceMap.get(FOREIGN_STRING),
+				differenceMap.get(SMALL_CAP_STRING), differenceMap.get(BONDS_STRING)});
+		
+		minValueMap.put(MID_CAP_STRING, new double[] {differenceMap.get(FOREIGN_STRING), differenceMap.get(SMALL_CAP_STRING),
+				differenceMap.get(BONDS_STRING), differenceMap.get(LARGE_CAP_STRING)});
+		
+		minValueMap.put(FOREIGN_STRING, new double[] {differenceMap.get(LARGE_CAP_STRING), differenceMap.get(MID_CAP_STRING),
+				differenceMap.get(FOREIGN_STRING), differenceMap.get(BONDS_STRING)});
+		
+		minValueMap.put(SMALL_CAP_STRING, new double[] {differenceMap.get(LARGE_CAP_STRING), differenceMap.get(MID_CAP_STRING),
+				differenceMap.get(FOREIGN_STRING), differenceMap.get(BONDS_STRING)});
+		
+		return minValueMap;
+	}
 
 	private void cal(String entity, Map<String, Double> differenceMap) {
-		if (differenceMap.get(entity) > 0) {
+		
+		double differenceMapEntity = differenceMap.get(entity);
+		
+		Map<String, double[]> minValueMap = this.getMinValueMap(differenceMap);
+		
+		
+		if (differenceMapEntity > 0) {
 			double min = 0.00;
-			if (entity == BONDS_STRING) {
-				min = commonUtil.findMin(differenceMap.get(LARGE_CAP_STRING), differenceMap.get(MID_CAP_STRING),
-						differenceMap.get(FOREIGN_STRING), differenceMap.get(SMALL_CAP_STRING));
-			} else if (entity == LARGE_CAP_STRING) {
-				min = commonUtil.findMin(differenceMap.get(MID_CAP_STRING), differenceMap.get(FOREIGN_STRING),
-						differenceMap.get(SMALL_CAP_STRING), differenceMap.get(BONDS_STRING));
-			} else if (entity == MID_CAP_STRING) {
-				min = commonUtil.findMin(differenceMap.get(FOREIGN_STRING), differenceMap.get(SMALL_CAP_STRING),
-						differenceMap.get(BONDS_STRING), differenceMap.get(LARGE_CAP_STRING));
-			} else if (entity == FOREIGN_STRING) {
-				min = commonUtil.findMin(differenceMap.get(LARGE_CAP_STRING), differenceMap.get(MID_CAP_STRING),
-						differenceMap.get(BONDS_STRING), differenceMap.get(SMALL_CAP_STRING));
-			} else {
-				min = commonUtil.findMin(differenceMap.get(LARGE_CAP_STRING), differenceMap.get(MID_CAP_STRING),
-						differenceMap.get(FOREIGN_STRING), differenceMap.get(BONDS_STRING));
-			}
+			commonUtil.findMin(minValueMap.get(entity));
 
 			if (differenceMap.get(SMALL_CAP_STRING) != 0.00 && differenceMap.get(SMALL_CAP_STRING) == min) {
-				if (differenceMap.get(entity) + min == 0.00) {
+				if (differenceMapEntity + min == 0.00) {
 					updateCalcuatedData(min, differenceMap, SMALL_CAP_STRING, entity);
-				} else if (differenceMap.get(entity) + min > 0.00) {
+				} 
+				else if (differenceMapEntity + min > 0.00) {
 					updateCalcuatedData(min, differenceMap, SMALL_CAP_STRING, entity);
 					cal(entity, differenceMap);
-				} else {
-					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMap.get(entity)),
+				} 
+				else {
+					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMapEntity),
 							SMALL_CAP_STRING, entity));
-					differenceMap.put(SMALL_CAP_STRING, differenceMap.get(entity) + min);
+					differenceMap.put(SMALL_CAP_STRING, differenceMapEntity + min);
 					differenceMap.put(entity, 0.00);
 
 				}
 
 			}
 			if (differenceMap.get(FOREIGN_STRING) != 0.00 && differenceMap.get(FOREIGN_STRING) == min) {
-				if (differenceMap.get(entity) + min == 0.00) {
+				if (differenceMapEntity + min == 0.00) {
 					updateCalcuatedData(min, differenceMap, FOREIGN_STRING, entity);
-				} else if (differenceMap.get(entity) + min > 0.00) {
+				} else if (differenceMapEntity + min > 0.00) {
 					updateCalcuatedData(min, differenceMap, FOREIGN_STRING, entity);
 					cal(entity, differenceMap);
 
 				} else {
-					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMap.get(entity)),
+					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMapEntity),
 							FOREIGN_STRING, entity));
-					differenceMap.put(FOREIGN_STRING, differenceMap.get(entity) + min);
+					differenceMap.put(FOREIGN_STRING, differenceMapEntity + min);
 					differenceMap.put(entity, 0.00);
 
 				}
 			}
 			if (differenceMap.get(MID_CAP_STRING) != 0.00 && differenceMap.get(MID_CAP_STRING) == min) {
-				if (differenceMap.get(entity) + min == 0.00) {
+				if (differenceMapEntity + min == 0.00) {
 					updateCalcuatedData(min, differenceMap, MID_CAP_STRING, entity);
-				} else if (differenceMap.get(entity) + min > 0.00) {
+				} else if (differenceMapEntity + min > 0.00) {
 					updateCalcuatedData(min, differenceMap, MID_CAP_STRING, entity);
 					cal(entity, differenceMap);
 
 				} else {
-					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMap.get(entity)),
+					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMapEntity),
 							MID_CAP_STRING, entity));
-					differenceMap.put(MID_CAP_STRING, (differenceMap.get(entity) + min));
+					differenceMap.put(MID_CAP_STRING, (differenceMapEntity + min));
 					differenceMap.put(entity, 0.00);
 
 				}
 			}
 			if (differenceMap.get(LARGE_CAP_STRING) != 0.00 && differenceMap.get(LARGE_CAP_STRING) == min) {
-				if (differenceMap.get(entity) + min == 0.00) {
+				if (differenceMapEntity + min == 0.00) {
 					updateCalcuatedData(min, differenceMap, LARGE_CAP_STRING, entity);
-				} else if (differenceMap.get(entity) + min > 0.00) {
+				} else if (differenceMapEntity + min > 0.00) {
 					updateCalcuatedData(min, differenceMap, LARGE_CAP_STRING, entity);
 				} else {
-					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMap.get(entity)),
+					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMapEntity),
 							LARGE_CAP_STRING, entity));
-					differenceMap.put(LARGE_CAP_STRING, differenceMap.get(entity) + min);
+					differenceMap.put(LARGE_CAP_STRING, differenceMapEntity + min);
 					differenceMap.put(entity, 0.00);
 
 				}
 			}
 			
 			if (differenceMap.get(BONDS_STRING) != 0.00 && differenceMap.get(BONDS_STRING) == min) {
-				if (differenceMap.get(entity) + min == 0.00) {
+				if (differenceMapEntity + min == 0.00) {
 					updateCalcuatedData(min, differenceMap, BONDS_STRING, entity);
-				} else if (differenceMap.get(entity) + min > 0.00) {
+				} else if (differenceMapEntity + min > 0.00) {
 					updateCalcuatedData(min, differenceMap, BONDS_STRING, entity);
 				} else {
-					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMap.get(entity)),
+					msgList.add(MessageFormat.format(TRANSFER_MSG, commonUtil.getCurrencyValueOf(differenceMapEntity),
 							BONDS_STRING, entity));
-					differenceMap.put(BONDS_STRING, differenceMap.get(entity) + min);
+					differenceMap.put(BONDS_STRING, differenceMapEntity + min);
 					differenceMap.put(entity, 0.00);
 
 				}
